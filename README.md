@@ -1,8 +1,9 @@
 # OverlappingPanelsCompose
 Jetpack Compose implementation of [Discord's Overlapping Panels](https://github.com/discord/OverlappingPanels)
 
-# Installation
-## Groovy
+Installation
+-------
+### Groovy
 Add JitPack repository to root build.gradle
 ```groovy
 allprojects {
@@ -18,7 +19,7 @@ dependencies {
     implementation 'com.github.X1nto:OverlappingPanelsCompose:1.0.0'
 }
 ```
-## Kotlin DSL
+### Kotlin DSL
 Add JitPack repository to root build.gradle
 ```kotlin
 allprojects {
@@ -35,7 +36,8 @@ dependencies {
 }
 ```
 
-# Usage
+Usage
+-------
 ```kotlin
 val panelsState = rememberOverlappingPanelsState()
 OverlappingPanels(
