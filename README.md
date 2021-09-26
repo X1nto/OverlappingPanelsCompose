@@ -53,7 +53,7 @@ Check out the [sample app](/app) for examples on how to use the library.
 License
 -------
 ```
-Copyright (C) 2020 X1nto.
+Copyright (C) 2021 X1nto.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
