@@ -43,12 +43,12 @@ val panelsState = rememberOverlappingPanelsState()
 OverlappingPanels(
     modifier = Modifier.fillMaxSize(),
     panelsState = panelsState,
-    enableGestures = true,
     panelStart = { /* Start Panel content */ },
     panelCenter = { /* Center Panel content */ },
     panelEnd = { /* End Panel content */ },
 )
 ```
+Check out the [sample app](/app) for examples on how to use the library.
 
 License
 -------
