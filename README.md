@@ -3,25 +3,49 @@ Jetpack Compose implementation of [Discord's Overlapping Panels](https://github.
 
 # Installation
 ## Groovy
+Add JitPack repository to root build.gradle
 ```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+Add OverlappingPanelsCompose dependency to app build.gradle
+```groovy
+dependencies {
     implementation 'com.github.X1nto:OverlappingPanelsCompose:1.0.0'
+}
 ```
 ## Kotlin DSL
+Add JitPack repository to root build.gradle
 ```kotlin
+allprojects {
+    repositories {
+        ...
+        maven(url = "https://jitpack.io")
+    }
+}
+```
+Add OverlappingPanelsCompose dependency to app build.gradle
+```kotlin
+dependencies {
     implementation("com.github.X1nto:OverlappingPanelsCompose:1.0.0")
+}
 ```
 
 # Usage
 ```kotlin
 val panelsState = rememberOverlappingPanelsState()
-    OverlappingPanels(
-        modifier = Modifier.fillMaxSize(),
-        panelsState = panelsState,
-        enableGestures = true,
-        panelStart = { /* Start Panel content */ },
-        panelCenter = { /* Center Panel content */ },
-        panelEnd = { /* End Panel content */ },
-    )
+OverlappingPanels(
+    modifier = Modifier.fillMaxSize(),
+    panelsState = panelsState,
+    enableGestures = true,
+    panelStart = { /* Start Panel content */ },
+    panelCenter = { /* Center Panel content */ },
+    panelEnd = { /* End Panel content */ },
+)
 ```
 
 License
