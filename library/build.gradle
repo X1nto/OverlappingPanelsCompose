@@ -4,8 +4,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.github.xinto'
-version = '1.0.0'
+group = library_group
+version = library_version
 
 android {
     compileSdk 31
@@ -22,12 +22,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '1.8'
     }
 
     buildFeatures {
@@ -49,9 +49,9 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.github.xinto'
+                groupId = library_group
                 artifactId = 'OverlappingPanelsCompose'
-                version = '1.0.0'
+                version = library_version
             }
         }
     }
