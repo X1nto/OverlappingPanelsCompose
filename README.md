@@ -16,7 +16,7 @@ allprojects {
 Add OverlappingPanelsCompose dependency to app build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.X1nto:OverlappingPanelsCompose:1.0.0'
+    implementation 'com.github.X1nto:OverlappingPanelsCompose:1.1.0'
 }
 ```
 ### Kotlin DSL
@@ -32,11 +32,11 @@ allprojects {
 Add OverlappingPanelsCompose dependency to app build.gradle
 ```kotlin
 dependencies {
-    implementation("com.github.X1nto:OverlappingPanelsCompose:1.0.0")
+    implementation("com.github.X1nto:OverlappingPanelsCompose:1.1.0")
 }
 ```
 
-Usage
+Basic usage
 -------
 ```kotlin
 val panelsState = rememberOverlappingPanelsState()
