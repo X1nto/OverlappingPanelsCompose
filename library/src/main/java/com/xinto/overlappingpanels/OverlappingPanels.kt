@@ -1,14 +1,11 @@
-package com.discord.panels
+package com.xinto.overlappingpanels
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableState
-import androidx.compose.material.swipeable
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.Saver
@@ -19,12 +16,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
-
-private val MarginBetweenPanels = 16.dp
 
 /**
  * Possible values for [OverlappingPanels]
@@ -32,17 +28,17 @@ private val MarginBetweenPanels = 16.dp
 enum class OverlappingPanelsValue {
 
     /**
-     * Start panel is opened
+     * Start panel is opened.
      */
     OpenStart,
 
     /**
-     * End panel is opened
+     * End panel is opened.
      */
     OpenEnd,
 
     /**
-     * Both panels are closed
+     * Both panels are closed.
      */
     Closed
 
@@ -86,21 +82,21 @@ class OverlappingPanelsState(
         get() = currentValue == OverlappingPanelsValue.OpenEnd
 
     /**
-     * Open End Panel with animation
+     * Open End Panel with animation.
      */
     suspend fun openStartPanel() {
         swipeableState.animateTo(OverlappingPanelsValue.OpenEnd)
     }
 
     /**
-     * Open End Panel with animation
+     * Open End Panel with animation.
      */
     suspend fun openEndPanel() {
         swipeableState.animateTo(OverlappingPanelsValue.OpenStart)
     }
 
     /**
-     * Close panels with animation
+     * Close panels with animation.
      */
     suspend fun closePanels() {
         swipeableState.animateTo(OverlappingPanelsValue.Closed)
@@ -135,20 +131,30 @@ fun rememberOverlappingPanelsState(
 /**
  * @param modifier [Modifier]
  * @param panelsState [Panel Controller][OverlappingPanelsState]
- * @param panelStart Content for the start panel (replaced with `panelEnd` for the LTR layout)
- * @param panelCenter Content for the center panel
- * @param panelEnd Content for the center panel (replaced with `panelStart` for the LTR layout)
- * @param enableGestures Whether to enable swipe gestures
+ * @param panelStart Content for the start panel (replaced with `panelEnd` for the LTR layout).
+ * @param panelCenter Content for the center panel.
+ * @param panelEnd Content for the center panel (replaced with `panelStart` for the LTR layout).
+ * @param gesturesEnabled Whether to enable swipe gestures.
+ * @param velocityThreshold Minimum swipe speed required to open/close side panels.
+ * @param resistance Controls how much resistance will be applied when swiping past the bounds.
+ * @param sidePanelWidthFraction Maximum width in fractions for side panels to occupy when opened.
+ * @param centerPanelAlpha Opacity of the center panel when side panels are closed and opened.
+ * @param centerPanelElevation Elevation of the center panel
  */
 @ExperimentalMaterialApi
 @Composable
 fun OverlappingPanels(
-    modifier: Modifier = Modifier,
-    panelsState: OverlappingPanelsState = rememberOverlappingPanelsState(initialValue = OverlappingPanelsValue.Closed),
     panelStart: @Composable BoxScope.() -> Unit,
     panelCenter: @Composable BoxScope.() -> Unit,
     panelEnd: @Composable BoxScope.() -> Unit,
-    enableGestures: Boolean = true,
+    modifier: Modifier = Modifier,
+    panelsState: OverlappingPanelsState = rememberOverlappingPanelsState(initialValue = OverlappingPanelsValue.Closed),
+    gesturesEnabled: Boolean = true,
+    velocityThreshold: Dp = 400.dp,
+    resistance: (anchors: Set<Float>) -> ResistanceConfig? = { null },
+    sidePanelWidthFraction: SidePanelWidthFraction = PanelDefaults.sidePanelWidthFraction(),
+    centerPanelAlpha: CenterPanelAlpha = PanelDefaults.centerPanelAlpha(),
+    centerPanelElevation: Dp = 8.dp,
 ) {
     val resources = LocalContext.current.resources
 
@@ -157,25 +163,19 @@ fun OverlappingPanels(
     BoxWithConstraints(modifier.fillMaxSize()) {
         val fraction =
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                0.85f
+                sidePanelWidthFraction.portrait()
             } else {
-                0.45f
+                sidePanelWidthFraction.landscape()
             }
 
-        val offsetValue = (constraints.maxWidth * fraction) + MarginBetweenPanels.value
+        val offsetValue = (constraints.maxWidth * fraction) + PanelDefaults.MarginBetweenPanels.value
 
-        val centerPanelAlpha by animateFloatAsState(
+        //TODO make animation configurable
+        val animatedCenterPanelAlpha by animateFloatAsState(
             targetValue = if (
                 panelsState.offset.value == offsetValue ||
                 panelsState.offset.value == -offsetValue
-            ) 0.7f else 1f,
-        )
-
-        val elevation by animateDpAsState(
-            targetValue = if (
-                panelsState.offset.value == offsetValue ||
-                panelsState.offset.value == -offsetValue
-            ) 0.dp else 8.dp,
+            ) centerPanelAlpha.sidesOpened() else centerPanelAlpha.sidesClosed(),
         )
 
         val anchors = mapOf(
@@ -190,11 +190,11 @@ fun OverlappingPanels(
                 .swipeable(
                     state = panelsState.swipeableState,
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = 400.dp,
+                    velocityThreshold = velocityThreshold,
                     anchors = anchors,
-                    enabled = enableGestures,
+                    enabled = gesturesEnabled,
                     reverseDirection = !isLtr,
-                    resistance = null,
+                    resistance = resistance(anchors.keys),
                 )
         ) {
             Box(
@@ -217,16 +217,96 @@ fun OverlappingPanels(
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center)
-                    .alpha(centerPanelAlpha)
+                    .alpha(animatedCenterPanelAlpha)
                     .offset {
                         IntOffset(
                             x = panelsState.offset.value.roundToInt(),
                             y = 0
                         )
                     }
-                    .shadow(elevation),
+                    .shadow(centerPanelElevation),
                 content = panelCenter
             )
         }
     }
 }
+
+interface SidePanelWidthFraction {
+
+    @Composable
+    fun portrait(): Float
+
+    @Composable
+    fun landscape(): Float
+
+}
+
+interface CenterPanelAlpha {
+
+    @Composable
+    fun sidesOpened(): Float
+
+    @Composable
+    fun sidesClosed(): Float
+
+}
+
+object PanelDefaults {
+
+    val MarginBetweenPanels = 16.dp
+
+    /**
+     * @param portrait Fraction to use when the device is in portrait mode.
+     * @param landscape Fraction to use when the device is in landscape mode.
+     */
+    @Composable
+    fun sidePanelWidthFraction(
+        portrait: Float = 0.85f,
+        landscape: Float = 0.45f,
+    ): SidePanelWidthFraction = DefaultSidePanelWidthFraction(
+        portrait = portrait,
+        landscape = landscape,
+    )
+
+    /**
+     * @param sidesOpened Alpha to use when any of the side panels are opened
+     * @param sidesClosed Alpha to use when any of the side panels are closed
+     */
+    @Composable
+    fun centerPanelAlpha(
+        sidesOpened: Float = 0.7f,
+        sidesClosed: Float = 1f
+    ): CenterPanelAlpha = DefaultCenterPanelAlpha(
+        sidesOpened = sidesOpened,
+        sidesClosed = sidesClosed,
+    )
+
+}
+
+private class DefaultSidePanelWidthFraction(
+    private val portrait: Float,
+    private val landscape: Float,
+) : SidePanelWidthFraction {
+
+    @Composable
+    override fun portrait() = portrait
+
+    @Composable
+    override fun landscape() = landscape
+
+}
+
+private class DefaultCenterPanelAlpha(
+    private val sidesOpened: Float,
+    private val sidesClosed: Float,
+) : CenterPanelAlpha {
+
+    @Composable
+    override fun sidesOpened() = sidesOpened
+
+    @Composable
+    override fun sidesClosed() = sidesClosed
+
+}
+
+
