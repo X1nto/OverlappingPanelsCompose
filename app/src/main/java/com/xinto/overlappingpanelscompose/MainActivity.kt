@@ -13,8 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.discord.panels.OverlappingPanels
-import com.discord.panels.rememberOverlappingPanelsState
+import com.xinto.overlappingpanels.OverlappingPanels
+import com.xinto.overlappingpanels.rememberOverlappingPanelsState
 import com.xinto.overlappingpanelscompose.component.PanelColumn
 import com.xinto.overlappingpanelscompose.component.PanelHeaderText
 import com.xinto.overlappingpanelscompose.component.PanelSurface
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     OverlappingPanels(
                         modifier = Modifier.fillMaxSize(),
                         panelsState = panelState,
-                        enableGestures = gesturesEnabled,
+                        gesturesEnabled = gesturesEnabled,
                         panelStart = {
                             PanelSurface {
                                 PanelColumn {
