@@ -63,11 +63,19 @@ class OverlappingPanelsState(
         confirmStateChange = confirmStateChange
     )
 
+
     /**
      * Current [value][OverlappingPanelsValue]
      */
     val currentValue
         get() = swipeableState.currentValue
+
+    /**
+     * Target [value][OverlappingPanelsValue]
+     */
+    val targetValue
+        get() = swipeableState.targetValue
+
 
     /**
      * Center panel offset
