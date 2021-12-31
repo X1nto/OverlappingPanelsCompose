@@ -7,6 +7,7 @@
     <string name="open_panel_programmatically_instructions">Alternatively, call methods like openStartPanel() or openEndPanel() (e.g. in response to a button click).</string>
     <string name="open_start_panel_button_text">Open Start Panel</string>
     <string name="open_end_panel_button_text">Open End Panel</string>
+    <string name="close_panel_button_text">Close Panel</string>
     <string name="gestures_toggle_instructions">Gestures are configurable</string>
     <string name="gestures_status">Gestures Enabled: %1$s</string>
     <string name="child_gesture_region_instructions">Child horizontally scrollable items override the panel gestures.</string>

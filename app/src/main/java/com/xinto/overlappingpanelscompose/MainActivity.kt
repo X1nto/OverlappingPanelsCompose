@@ -59,6 +59,11 @@ class MainActivity : ComponentActivity() {
                                         modifier = Modifier.align(Alignment.CenterHorizontally),
                                         text = stringResource(R.string.start_panel_name)
                                     )
+                                    Button(onClick = {
+                                        coroutineScope.launch { panelState.closePanels() }
+                                    }) {
+                                        Text(text = stringResource(R.string.close_panel_button_text))
+                                    }
                                 }
                             }
                         },
@@ -120,6 +125,11 @@ class MainActivity : ComponentActivity() {
                                         modifier = Modifier.align(Alignment.CenterHorizontally),
                                         text = stringResource(R.string.end_panel_name)
                                     )
+                                    Button(onClick = {
+                                        coroutineScope.launch { panelState.closePanels() }
+                                    }) {
+                                        Text(text = stringResource(R.string.close_panel_button_text))
+                                    }
                                 }
                             }
                         }
