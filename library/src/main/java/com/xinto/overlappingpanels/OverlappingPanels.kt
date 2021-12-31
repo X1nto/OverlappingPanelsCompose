@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -71,6 +72,15 @@ class OverlappingPanelsState(
      */
     val offset
         get() = swipeableState.offset
+
+    val offsetIsPositive
+        get() = offset.value > 0f
+
+    val offsetIsNegative
+        get() = offset.value < 0f
+
+    val offsetNotZero
+        get() = offset.value != 0f
 
     val isPanelsClosed
         get() = currentValue == OverlappingPanelsValue.Closed
@@ -157,25 +167,24 @@ fun OverlappingPanels(
     centerPanelElevation: Dp = 8.dp,
 ) {
     val resources = LocalContext.current.resources
-
-    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val layoutDirection = LocalLayoutDirection.current
 
     BoxWithConstraints(modifier.fillMaxSize()) {
         val fraction =
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                 sidePanelWidthFraction.portrait()
-            } else {
+            else
                 sidePanelWidthFraction.landscape()
-            }
 
         val offsetValue = (constraints.maxWidth * fraction) + PanelDefaults.MarginBetweenPanels.value
 
         //TODO make animation configurable
         val animatedCenterPanelAlpha by animateFloatAsState(
-            targetValue = if (
-                panelsState.offset.value == offsetValue ||
-                panelsState.offset.value == -offsetValue
-            ) centerPanelAlpha.sidesOpened() else centerPanelAlpha.sidesClosed(),
+            targetValue =
+                if (abs(panelsState.offset.value) == abs(offsetValue))
+                    centerPanelAlpha.sidesOpened()
+                else
+                    centerPanelAlpha.sidesClosed(),
         )
 
         val anchors = mapOf(
@@ -193,25 +202,28 @@ fun OverlappingPanels(
                     velocityThreshold = velocityThreshold,
                     anchors = anchors,
                     enabled = gesturesEnabled,
-                    reverseDirection = !isLtr,
+                    reverseDirection = layoutDirection == LayoutDirection.Rtl,
                     resistance = resistance(anchors.keys),
                 )
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(fraction)
-                    .align(if (isLtr) Alignment.CenterStart else Alignment.CenterEnd)
-                    .alpha(if ((isLtr && panelsState.offset.value > 0f) || (!isLtr && panelsState.offset.value < 0f)) 1f else 0f),
-                content = if (isLtr) panelStart else panelEnd
+            val sidePanelAlignment = organizeSidePanel(
+                panelsState,
+                onStartPanel = { Alignment.CenterStart },
+                onEndPanel = { Alignment.CenterEnd },
+                onNeither = { Alignment.Center }
+            )
+            val sidePanelContent = organizeSidePanel(
+                panelsState,
+                onStartPanel = { panelStart },
+                onEndPanel = { panelEnd },
+                onNeither = { {} }
             )
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(fraction)
-                    .align(if (isLtr) Alignment.CenterEnd else Alignment.CenterStart)
-                    .alpha(if ((isLtr && panelsState.offset.value < 0f) || (!isLtr && panelsState.offset.value > 0f)) 1f else 0f),
-                content = if (isLtr) panelEnd else panelStart
+                    .align(sidePanelAlignment),
+                content = sidePanelContent
             )
             Box(
                 modifier = Modifier
@@ -249,6 +261,18 @@ interface CenterPanelAlpha {
     @Composable
     fun sidesClosed(): Float
 
+}
+
+@ExperimentalMaterialApi
+private inline fun <T> organizeSidePanel(
+    panelsState: OverlappingPanelsState,
+    onStartPanel: () -> T,
+    onEndPanel: () -> T,
+    onNeither: () -> T,
+) = when {
+    panelsState.offsetIsPositive -> onStartPanel()
+    panelsState.offsetIsNegative -> onEndPanel()
+    else -> onNeither()
 }
 
 object PanelDefaults {
