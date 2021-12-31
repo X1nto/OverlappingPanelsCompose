@@ -29,25 +29,27 @@ import kotlin.math.roundToInt
 enum class OverlappingPanelsValue {
 
     /**
-     * Start panel is opened.
+     * The state of the overlapping panels when start panel is open.
      */
     OpenStart,
 
     /**
-     * End panel is opened.
+     * The state of the overlapping panels when end panel is open.
      */
     OpenEnd,
 
     /**
-     * Both panels are closed.
+     * The state of the overlapping panels when both panels are closed.
      */
     Closed
 
 }
 
 /**
- * @param initialValue Initial state of the panels, can only be one of [OverlappingPanelsValue]
- * @param confirmStateChange Whether to consume the change.
+ * State of the [OverlappingPanels] composable.
+ *
+ * @param initialValue The initial value of the state.
+ * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @ExperimentalMaterialApi
 class OverlappingPanelsState(
@@ -92,21 +94,21 @@ class OverlappingPanelsState(
         get() = currentValue == OverlappingPanelsValue.OpenEnd
 
     /**
-     * Open End Panel with animation.
+     * Open the start panel with animation.
      */
     suspend fun openStartPanel() {
         swipeableState.animateTo(OverlappingPanelsValue.OpenEnd)
     }
 
     /**
-     * Open End Panel with animation.
+     * Open the end panel with animation.
      */
     suspend fun openEndPanel() {
         swipeableState.animateTo(OverlappingPanelsValue.OpenStart)
     }
 
     /**
-     * Close panels with animation.
+     * Close the panels with animation.
      */
     suspend fun closePanels() {
         swipeableState.animateTo(OverlappingPanelsValue.Closed)
@@ -139,17 +141,17 @@ fun rememberOverlappingPanelsState(
 }
 
 /**
- * @param modifier [Modifier]
- * @param panelsState [Panel Controller][OverlappingPanelsState]
- * @param panelStart Content for the start panel (replaced with `panelEnd` for the LTR layout).
+ * @param panelStart Content for the start panel (swapped with `panelEnd` for the RTL layout).
  * @param panelCenter Content for the center panel.
- * @param panelEnd Content for the center panel (replaced with `panelStart` for the LTR layout).
+ * @param panelEnd Content for the center panel (swapped with `panelStart` for the RTL layout).
+ * @param panelsState state of the Overlapping Panels.
+ * @param modifier optional modifier for the Overlapping Panels.
  * @param gesturesEnabled Whether to enable swipe gestures.
  * @param velocityThreshold Minimum swipe speed required to open/close side panels.
  * @param resistance Controls how much resistance will be applied when swiping past the bounds.
  * @param sidePanelWidthFraction Maximum width in fractions for side panels to occupy when opened.
  * @param centerPanelAlpha Opacity of the center panel when side panels are closed and opened.
- * @param centerPanelElevation Elevation of the center panel
+ * @param centerPanelElevation Elevation of the center panel.
  */
 @ExperimentalMaterialApi
 @Composable
@@ -293,8 +295,8 @@ object PanelDefaults {
     )
 
     /**
-     * @param sidesOpened Alpha to use when any of the side panels are opened
-     * @param sidesClosed Alpha to use when any of the side panels are closed
+     * @param sidesOpened Alpha to use when any of the side panels are opened.
+     * @param sidesClosed Alpha to use when any of the side panels are closed.
      */
     @Composable
     fun centerPanelAlpha(
